@@ -16,3 +16,5 @@ class TutorialItem(scrapy.Item):
 class DoubanLpsItem(scrapy.Item):
     comment = scrapy.Field()
     watcher = scrapy.Field()
+    commentTime = scrapy.Field()
+    votes = scrapy.Field()

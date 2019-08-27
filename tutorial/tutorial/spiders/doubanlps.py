@@ -22,5 +22,7 @@ class DoubanlpsSpider(scrapy.Spider):
             selector = Selector(text = item)
             obj['comment'] = selector.xpath('//span[@class="short"]/text()').extract_first()
             obj['watcher'] = selector.xpath('//span[@class="comment-info"]/a/text()').extract_first()
+            obj['commentTime'] = selector.xpath('normalize-space(//span[@class="comment-info"]/span[@class="comment-time "]/text())').extract_first()
+            obj['votes'] = selector.xpath('//span[@class="votes"]/text()').extract_first()
             yield obj
 
