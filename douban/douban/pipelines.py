@@ -14,13 +14,14 @@ from twisted.enterprise import adbapi
 import time
 import copy
 
+
 class DoubanPipeline(object):
     #函数初始化
-    def __init__(self,db_pool):
-        self.db_pool=db_pool
+    def __init__(self, db_pool):
+        self.db_pool = db_pool
         # self.file = open(os.getcwd()+'/douban/files/movies.json','wb')
     @classmethod
-    def from_settings(cls,settings): # 函数名固定，会被scrapy调用，直接可用settings的值
+    def from_settings(cls, settings):  # 函数名固定，会被scrapy调用，直接可用settings的值
         """类方法，只加载一次，数据库初始化"""
         db_params = dict(
             host=settings['MYSQL_HOST'],
@@ -31,12 +32,12 @@ class DoubanPipeline(object):
             charset=settings['MYSQL_CHARSET'],
             use_unicode=True,
             # 设置游标类型
-            cursorclass=cursors.DictCursor
-        )
+            cursorclass=cursors.DictCursor)
         # 创建连接池
         db_pool = adbapi.ConnectionPool('pymysql', **db_params)
         # 返回一个pipeline对象
         return cls(db_pool)
+
     def process_item(self, item, spider):
         """
         数据处理
@@ -44,8 +45,9 @@ class DoubanPipeline(object):
         :param spider:
         :return:
         """
-        myItem={}
+        myItem = {}
         myItem['movieName'] = item['movieName']
+        myItem['rate'] = item['rate']
         myItem["director"] = item["director"]
         myItem["actors"] = item["actors"]
         myItem["genres"] = item["genres"]
@@ -69,12 +71,14 @@ class DoubanPipeline(object):
         self.file.write(line.encode("utf-8"))
         return item
         '''
+
     # 处理sql函数
     def insert_into(self, cursor, item):
         # 创建sql语句
-        sql = "INSERT INTO tdbgf (movieName,director,actors,genres,country,language,initialReleaseDate,runtime,imdbLink) VALUES ('{}','{}','{}','{}','{}','{}','{}','{}','{}')".format(
-            item['movieName'],item['director'], item['actors'], item['genres'], item['country'], item['language'],
-            item['initialReleaseDate'],item['runtime'],item['imdbLink'])
+        sql = "INSERT INTO tdbgf (movieName,rate,director,actors,genres,country,language,initialReleaseDate,runtime,imdbLink) VALUES ('{}','{}','{}','{}','{}','{}','{}','{}','{}','{}')".format(
+            item['movieName'],item['rate'], item['director'], item['actors'],
+            item['genres'], item['country'], item['language'],
+            item['initialReleaseDate'], item['runtime'], item['imdbLink'])
         # 执行sql语句
         cursor.execute(sql)
         # 错误函数
@@ -82,5 +86,6 @@ class DoubanPipeline(object):
     def handle_error(self, failure, item, spider):
         # #输出错误信息
         print("failure", failure)
+
     # def spider_closed(self, spider):
-        # self.file.close()
+    # self.file.close()
